@@ -137,13 +137,13 @@ async function run() {
     })
 
 
-    app.post("/bio", verifyAdmin, verifyToken, async (req, res) => {
+    app.post("/bio", async (req, res) => {
       const menuItme = req.body;
       const result = await bioDataCollection.insertOne(menuItme);
       res.send(result);
     });
 
-    app.delete("/bio/:id", verifyToken, verifyAdmin, async (req, res) => {
+    app.delete("/bio/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       
