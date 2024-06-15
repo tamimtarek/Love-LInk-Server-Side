@@ -5,7 +5,16 @@ const jwt = require("jsonwebtoken");
 const port = process.env.PORT || 5000;
 require("dotenv").config();
 // middleware
-app.use(cors());
+
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://lovelink-36e1e.web.app",
+      "https://lovelink-36e1e.firebaseapp.com",
+    ]
+  })
+);
 app.use(express.json());
 
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
@@ -27,8 +36,9 @@ async function run() {
 
     const bioDataCollection = client.db("lovelinkDB").collection("bioData");
     const userCollection = client.db("lovelinkDB").collection("users");
-    const successStoryCollection = client.db("lovelinkDB").collection("successStory");
-    // const cartCollection = client.db("lovelinkDB").collection("carts");
+    const successStoryCollection = client.db("lovelinkDB").collection("success");
+    const favouritesCollection = client.db("lovelinkDB").collection("favourites");
+    const requestCollection = client.db("lovelinkDB").collection("request");
 
     // JWT Related API
     app.post("/jwt", async (req, res) => {
@@ -128,6 +138,10 @@ async function run() {
       const result = await bioDataCollection.find().toArray();
       res.send(result);
     });
+    app.get("/success", async (req, res) => {
+      const result = await successStoryCollection.find().toArray();
+      res.send(result);
+    });
 
     app.get("/bio/:id", async (req, res)=>{
       const id = req.params.id
@@ -159,28 +173,47 @@ async function run() {
       res.send(result);
     });
 
-    // // Carts Collection
-    // app.get("/carts", async (req, res) => {
-    //   const email = req.query.email;
-    //   const query = { email: email };
-    //   const result = await cartCollection.find(query).toArray();
-    //   res.send(result);
-    // });
+    // favourites Collection
+    app.get("/favourits", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await favouritesCollection.find(query).toArray();
+      res.send(result);
+    });
 
-    // app.post("/carts", async (req, res) => {
-    //   const cartItem = req.body;
-    //   const result = await cartCollection.insertOne(cartItem);
-    //   res.send(result);
-    // });
-    // app.delete("/carts/:id", async (req, res) => {
-    //   const id = req.params.id;
-    //   const query = { _id: new ObjectId(id) };
-    //   const result = await cartCollection.deleteOne(query);
-    //   res.send(result);
-    // });
+    app.post("/favourits", async (req, res) => {
+      const cartItem = req.body;
+      const result = await favouritesCollection.insertOne(cartItem);
+      res.send(result);
+    });
+    app.delete("/favourits/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await favouritesCollection.deleteOne(query);
+      res.send(result);
+    });
+    // Contact Request Collection
+    app.get("/request", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await requestCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.post("/request", async (req, res) => {
+      const cartItem = req.body;
+      const result = await requestCollection.insertOne(cartItem);
+      res.send(result);
+    });
+    app.delete("/request/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await requestCollection.deleteOne(query);
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
