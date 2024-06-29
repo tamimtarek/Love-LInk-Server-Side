@@ -32,7 +32,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const bioDataCollection = client.db("lovelinkDB").collection("bioData");
     const userCollection = client.db("lovelinkDB").collection("users");
@@ -126,7 +126,7 @@ async function run() {
       }
     );
 
-    app.delete("/users/:id", verifyAdmin, verifyToken, async (req, res) => {
+    app.delete("/users/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await userCollection.deleteOne(query);
@@ -149,7 +149,8 @@ async function run() {
       const result = await bioDataCollection.findOne(query);
       res.send(result);
     })
-
+    
+    
 
     app.post("/bio", async (req, res) => {
       const menuItme = req.body;
